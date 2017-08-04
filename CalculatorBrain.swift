@@ -1,0 +1,220 @@
+//
+//  CalculatorBrain.swift
+//  Calculator
+//
+//  Created by Iza Ledzka on 29/06/2017.
+//  Copyright © 2017 Iza Ledzka. All rights reserved.
+//
+
+import Foundation
+
+private func factorial(_ value: Double) -> Double {
+    if value <= 1 {
+        return value
+    } else {
+        return value * factorial(value-1)
+    }
+}
+
+private func randomValueFromZeroToOne() -> Double {
+    return Double(arc4random()) / Double(UInt32.max)
+}
+
+struct CalculatorBrain {
+    
+    private enum Precedence: Int {
+        case low = 0
+        case high
+    }
+    
+    private var accumulator: Double? { didSet { print("acc: " + String(describing: accumulator)) } }
+    
+    var resultIsPending: Bool {
+        get {
+            return pendingBinaryOperation != nil
+        }
+    }
+    
+    private var resultsArray = [(operand: Double?, stringValue: String, previousResult: Double?)]() {
+        willSet {
+            if let lastElement = newValue.last {
+                if description == nil {
+                    description = String()
+                }
+                if newValue.count > resultsArray.count {
+                    description?.removeAll()
+                    for stringValues in newValue {
+                        description = description! + stringValues.stringValue.formatted()
+                    }
+                } else {
+                    description?.append(lastElement.stringValue.formatted())
+                }
+                
+            }
+            print("resultsArray: " + resultsArray.debugDescription)
+            //print(description.debugDescription)
+        }
+    }
+    
+    var description: String?
+    
+    private enum Operation {
+        case constant(Double, String)
+        case unary((Double) -> Double, (String) -> String)
+        case binary((Double,Double)->Double, Precedence)
+        case equals
+        case C
+        case random(() -> Double, (Double)->String)
+    }
+    
+    private var operations: Dictionary<String,Operation> = [
+        "π" : Operation.constant(Double.pi, "π"),
+        "e" : Operation.constant(M_E, "e"),
+        "√" : Operation.unary(sqrt, {"√(\($0))"}),
+        "cos" : Operation.unary(cos, {"cos(\($0))"}),
+        "sin" : Operation.unary(sin, {"sin(\($0))"}),
+        "x²" : Operation.unary({$0 * $0}, {"(\($0))²"}),
+        "x!" : Operation.unary(factorial, {"(\($0))!"}),
+        "±" : Operation.unary({-$0}, {"(\(-1 * Double($0)!))"}),
+        "×" : Operation.binary(*, .high),
+        "÷" : Operation.binary(/, .high),
+        "+" : Operation.binary(+, .low),
+        "−" : Operation.binary(-, .low),
+        "=" : Operation.equals,
+        "C" : Operation.C,
+        "rand" : Operation.random(randomValueFromZeroToOne, {"\($0)"})
+    ]
+    
+    private var currentPrecedence = Precedence.high
+    
+    mutating func performOperation(_ symbol: String) {
+        if let operation = operations[symbol] {
+            switch operation {
+            case .constant(let value, let stringRepresentation):
+                if resultsArray.last?.operand == nil {
+                    accumulator = value
+                    resultsArray.append((value, stringRepresentation, nil))
+                }
+            case .unary(let function, let stringRepresentationFunc):
+                if accumulator != nil {
+                    if resultsArray.last?.operand == nil {
+                        resultsArray.append((accumulator!,stringRepresentationFunc(accumulator!.formatted()), nil))
+                    } else {
+                        resultsArray.removeLast()
+                        resultsArray.append((accumulator!,stringRepresentationFunc(accumulator!.formatted()), nil))
+                    }
+                    accumulator = function(accumulator!)
+                }
+            case .binary(let function, let precedenceOfOp):
+                if accumulator != nil {
+                    if resultsArray.isEmpty {
+                        resultsArray.append((accumulator!, "\(accumulator!)", nil))
+                    }
+                    if currentPrecedence.rawValue > precedenceOfOp.rawValue {
+                        performPendingBinaryOperation()
+                        currentPrecedence = precedenceOfOp
+                        pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!)
+                        var found = false
+                        for values in resultsArray.reversed() {
+                            if let value = values.previousResult {
+                                resultsArray.append((nil, symbol, accumulator! + value))
+                                found = true
+                                break
+                            }
+                        }
+                        if found == false {
+                            resultsArray.append((nil, symbol, accumulator!))
+                        } else {
+                            found = false
+                        }
+                        accumulator = nil
+                    } else if currentPrecedence.rawValue < precedenceOfOp.rawValue {
+                        currentPrecedence = precedenceOfOp
+                        pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!)
+                        resultsArray.append((nil, symbol, nil))
+                        accumulator = nil
+                    } else {
+                        performPendingBinaryOperation()
+                        pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!)
+                        resultsArray.append((nil, symbol, nil))
+                        accumulator = nil
+                    }
+                    /* 
+                    currentPrecedence = precedenceOfOp
+                    pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!)
+                    resultsArray.append((nil, symbol, accumulator!))
+                    accumulator = nil 
+                    */
+                    
+                }
+            case .random(let function, let stringRepresentation):
+                if resultsArray.last?.operand == nil {
+                    accumulator = function()
+                    resultsArray.append((accumulator!, stringRepresentation(accumulator!), nil))
+                } else {
+                    
+                }
+            case .equals:
+                performPendingBinaryOperation()
+                
+                    for values in resultsArray.reversed() {
+                        if let value = values.previousResult {
+                            print(value.debugDescription)
+                            print(values.stringValue.debugDescription)
+                            if values.stringValue == "+" {
+                                pendingBinaryOperation = PendingBinaryOperation(binaryFunction: {$0 + $1}, firstOperand: value)
+                                performPendingBinaryOperation()
+                                break
+                            } else if values.stringValue == "-" {
+                                pendingBinaryOperation = PendingBinaryOperation(binaryFunction: {$0 - $1}, firstOperand: value)
+                                performPendingBinaryOperation()
+                                break
+                            }
+                        }
+                    }
+                
+                currentPrecedence = .high
+                resultsArray.removeAll()
+            case .C:
+                clear()
+            }
+        }
+    }
+    private mutating func clear() {
+        accumulator = nil
+        description = nil
+        resultsArray.removeAll()
+        pendingBinaryOperation = nil
+        currentPrecedence = .high
+    }
+    mutating func performPendingBinaryOperation(){
+        if pendingBinaryOperation != nil && accumulator != nil {
+            accumulator = pendingBinaryOperation!.perform(with: accumulator!)
+            pendingBinaryOperation = nil
+        }
+    }
+    
+    private var pendingBinaryOperation: PendingBinaryOperation?
+    
+    private struct PendingBinaryOperation {
+        let binaryFunction: (Double,Double)->Double
+        let firstOperand: Double
+        
+        func perform(with secondOperand: Double) -> (Double) {
+            return binaryFunction(firstOperand, secondOperand)
+        }
+    }
+    
+    
+    mutating func setOperand(_ operand: Double) {
+        accumulator = operand
+        resultsArray.append((accumulator!, "\(accumulator!)", nil))
+    }
+    
+    var result: Double? {
+        get {
+            return accumulator
+        }
+    }
+    
+}
