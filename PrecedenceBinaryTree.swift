@@ -42,3 +42,13 @@ extension PrecedenceBinaryTree {
         }
     }
 }
+
+extension PrecedenceBinaryTree {
+    public func associatedValues() -> (left: PrecedenceBinaryTree, middle: T, right: PrecedenceBinaryTree)? {
+        if case let .node(left, middle, right) = self {
+            return (left, middle, right)
+        } else {
+            return nil
+        }
+    }
+}

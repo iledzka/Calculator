@@ -25,7 +25,7 @@
 		2B7B81C71F05726600D83835 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2B7B81C91F05726600D83835 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2B7B81D01F05A22F00D83835 /* CalculatorBrain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalculatorBrain.swift; sourceTree = SOURCE_ROOT; };
-		2B8AFA301F25E6AF003456DA /* PrecedenceBinaryTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrecedenceBinaryTree.swift; sourceTree = "<group>"; };
+		2B8AFA301F25E6AF003456DA /* PrecedenceBinaryTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PrecedenceBinaryTree.swift; path = ../PrecedenceBinaryTree.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,7 +42,6 @@
 		2B7B81B11F05726600D83835 = {
 			isa = PBXGroup;
 			children = (
-				2B8AFA301F25E6AF003456DA /* PrecedenceBinaryTree.swift */,
 				2B7B81BC1F05726600D83835 /* Calculator */,
 				2B7B81BB1F05726600D83835 /* Products */,
 			);
@@ -61,6 +60,7 @@
 			children = (
 				2B7B81CF1F05728600D83835 /* Supporting Files */,
 				2B7B81BF1F05726600D83835 /* ViewController.swift */,
+				2B8AFA301F25E6AF003456DA /* PrecedenceBinaryTree.swift */,
 				2B7B81D01F05A22F00D83835 /* CalculatorBrain.swift */,
 				2B7B81C11F05726600D83835 /* Main.storyboard */,
 				2B7B81C61F05726600D83835 /* LaunchScreen.storyboard */,

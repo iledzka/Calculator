@@ -22,11 +22,6 @@ private func randomValueFromZeroToOne() -> Double {
 
 struct CalculatorBrain {
     
-    private enum Precedence: Int {
-        case low = 0
-        case high
-    }
-    
     private var accumulator: Double? { didSet { print("acc: " + String(describing: accumulator)) } }
     
     var resultIsPending: Bool {
@@ -85,8 +80,6 @@ struct CalculatorBrain {
         "rand" : Operation.random(randomValueFromZeroToOne, {"\($0)"})
     ]
     
-    private var currentPrecedence = Precedence.high
-    
     mutating func performOperation(_ symbol: String) {
         if let operation = operations[symbol] {
             switch operation {
@@ -110,41 +103,12 @@ struct CalculatorBrain {
                     if resultsArray.isEmpty {
                         resultsArray.append((accumulator!, "\(accumulator!)", nil))
                     }
-                    if currentPrecedence.rawValue > precedenceOfOp.rawValue {
-                        performPendingBinaryOperation()
-                        currentPrecedence = precedenceOfOp
-                        pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!)
-                        var found = false
-                        for values in resultsArray.reversed() {
-                            if let value = values.previousResult {
-                                resultsArray.append((nil, symbol, accumulator! + value))
-                                found = true
-                                break
-                            }
-                        }
-                        if found == false {
-                            resultsArray.append((nil, symbol, accumulator!))
-                        } else {
-                            found = false
-                        }
-                        accumulator = nil
-                    } else if currentPrecedence.rawValue < precedenceOfOp.rawValue {
-                        currentPrecedence = precedenceOfOp
-                        pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!)
-                        resultsArray.append((nil, symbol, nil))
-                        accumulator = nil
-                    } else {
-                        performPendingBinaryOperation()
-                        pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!)
-                        resultsArray.append((nil, symbol, nil))
-                        accumulator = nil
-                    }
-                    /* 
+                    performPendingBinaryOperation()
+                    pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!, binaryFunctionDescription: symbol)
+                    resultsArray.append((nil, symbol, nil))
+                    accumulator = nil
+                    previousPrecedence = currentPrecedence
                     currentPrecedence = precedenceOfOp
-                    pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!)
-                    resultsArray.append((nil, symbol, accumulator!))
-                    accumulator = nil 
-                    */
                     
                 }
             case .random(let function, let stringRepresentation):
@@ -155,24 +119,8 @@ struct CalculatorBrain {
                     
                 }
             case .equals:
+                print(tree?.description ?? "Can't print the tree's description.")
                 performPendingBinaryOperation()
-                
-                    for values in resultsArray.reversed() {
-                        if let value = values.previousResult {
-                            print(value.debugDescription)
-                            print(values.stringValue.debugDescription)
-                            if values.stringValue == "+" {
-                                pendingBinaryOperation = PendingBinaryOperation(binaryFunction: {$0 + $1}, firstOperand: value)
-                                performPendingBinaryOperation()
-                                break
-                            } else if values.stringValue == "-" {
-                                pendingBinaryOperation = PendingBinaryOperation(binaryFunction: {$0 - $1}, firstOperand: value)
-                                performPendingBinaryOperation()
-                                break
-                            }
-                        }
-                    }
-                
                 currentPrecedence = .high
                 resultsArray.removeAll()
             case .C:
@@ -186,6 +134,7 @@ struct CalculatorBrain {
         resultsArray.removeAll()
         pendingBinaryOperation = nil
         currentPrecedence = .high
+        tree = nil
     }
     mutating func performPendingBinaryOperation(){
         if pendingBinaryOperation != nil && accumulator != nil {
@@ -199,6 +148,7 @@ struct CalculatorBrain {
     private struct PendingBinaryOperation {
         let binaryFunction: (Double,Double)->Double
         let firstOperand: Double
+        let binaryFunctionDescription: String
         
         func perform(with secondOperand: Double) -> (Double) {
             return binaryFunction(firstOperand, secondOperand)
@@ -209,11 +159,45 @@ struct CalculatorBrain {
     mutating func setOperand(_ operand: Double) {
         accumulator = operand
         resultsArray.append((accumulator!, "\(accumulator!)", nil))
+        buildBinaryTree(with: operand)
     }
     
     var result: Double? {
         get {
             return accumulator
+        }
+    }
+    
+    //precedence binary tree implementation
+    
+    private enum Precedence: Int {
+        case low = 0
+        case high
+    }
+    
+    private var currentPrecedence = Precedence.high
+    private var previousPrecedence = Precedence.high
+    
+    var tree: PrecedenceBinaryTree<Any>?
+    
+    private mutating func buildBinaryTree(with newValue: Any) {
+        let tempNode = PrecedenceBinaryTree.node(.empty, newValue, .empty)
+        
+        if tree == nil {
+            tree = tempNode
+        }
+        print("Tree: " + (tree?.description)!)
+        print("**************************")
+        if pendingBinaryOperation != nil {
+            let operation = pendingBinaryOperation?.binaryFunctionDescription
+            if currentPrecedence.rawValue > previousPrecedence.rawValue {
+                let left = tree?.associatedValues()?.left
+                let middle = tree?.associatedValues()?.middle
+                let right = tree?.associatedValues()?.right
+                tree = PrecedenceBinaryTree<Any>.node(left!, middle!, PrecedenceBinaryTree<Any>.node(right!, operation!, tempNode))
+            } else {
+                tree = PrecedenceBinaryTree<Any>.node(tree!, operation!, tempNode)
+            }
         }
     }
     
