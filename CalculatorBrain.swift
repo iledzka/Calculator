@@ -20,17 +20,115 @@ private func randomValueFromZeroToOne() -> Double {
     return Double(arc4random()) / Double(UInt32.max)
 }
 
+
 struct CalculatorBrain {
+
+// Public API
     
-    private var accumulator: Double? { didSet { print("acc: " + String(describing: accumulator)) } }
+    var description: String?
+    
+    var result: Double? {
+        get {
+            return accumulator
+        }
+    }
     
     var resultIsPending: Bool {
         get {
             return pendingBinaryOperation != nil
         }
     }
+    var scientificButtonIsOn = false { didSet { print("scientificButtonIsOn changed to \(scientificButtonIsOn)")}}
     
-    private var resultsArray = [(operand: Double?, stringValue: String, previousResult: Double?)]() {
+    mutating func setOperand(_ operand: Double) {
+        accumulator = operand
+        resultsArray.append((accumulator!, "\(accumulator!)"))
+    }
+    
+    mutating func performOperation(_ symbol: String) {
+        if let operation = operations[symbol] {
+            switch operation {
+            case .constant(let value, let stringRepresentation):
+                if resultsArray.last?.operand == nil {
+                    accumulator = value
+                    buildBinaryTree(with: value)
+                    resultsArray.append((value, stringRepresentation))
+                }
+            case .unary(let function, let stringRepresentationFunc):
+                if accumulator != nil {
+                    if resultsArray.last?.operand == nil {
+                        resultsArray.append((accumulator!,stringRepresentationFunc(accumulator!.formatted())))
+                    } else {
+                        resultsArray.removeLast()
+                        resultsArray.append((accumulator!,stringRepresentationFunc(accumulator!.formatted())))
+                    }
+                    accumulator = function(accumulator!)
+                    buildBinaryTree(with: accumulator!)
+                }
+            case .binary(let function, let precedenceOfOp):
+                if accumulator != nil {
+                    if resultsArray.isEmpty {
+                        resultsArray.append((accumulator!, "\(accumulator!)"))
+                    }
+                    buildBinaryTree(with: accumulator!)
+                    performPendingBinaryOperation()
+                    pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!, binaryFunctionDescription: symbol)
+                    resultsArray.append((nil, symbol))
+                    accumulator = nil
+                    previousPrecedence = currentPrecedence
+                    currentPrecedence = precedenceOfOp
+                    
+                }
+            case .random(let function, let stringRepresentation):
+                if resultsArray.last?.operand == nil {
+                    accumulator = function()
+                    buildBinaryTree(with: accumulator!)
+                    resultsArray.append((accumulator!, stringRepresentation(accumulator!)))
+                }
+            case .equals:
+                buildBinaryTree(with: accumulator!)
+                tree?.traversePostOrder { s in
+                    print(s)
+                    switch s {
+                    case is Double:
+                        calculationsStack.push(s as! Double)
+                        
+                    case is String:
+                        if let operation = operations[s as! String] {
+                            if case .binary(let function, _) = operation {
+                                //values need to be passed in reverse order to maintain the order of operations
+                                let firstValue = calculationsStack.pop()!
+                                let tempResult = function(calculationsStack.pop()!, firstValue)
+                                calculationsStack.push(tempResult)
+                            }
+                        }
+                    default:
+                        break
+                    }
+                }
+                if scientificButtonIsOn == false {
+                    performPendingBinaryOperation()
+                } else {
+                    accumulator = calculationsStack.topValue()
+                }
+                print("RESULT OF TREE: " + String(describing: calculationsStack.topValue()))
+               
+                currentPrecedence = .high
+                resultsArray.removeAll()
+                
+            case .C:
+                clear()
+            }
+        }
+    }
+
+    
+// Private API
+    private var calculationsStack = StackMachine<Double>()
+    
+    private var accumulator: Double? { didSet { print("acc: " + String(describing: accumulator)) } }
+    
+    private var resultsArray = [(operand: Double?, stringValue: String)]() {
         willSet {
             if let lastElement = newValue.last {
                 if description == nil {
@@ -44,14 +142,9 @@ struct CalculatorBrain {
                 } else {
                     description?.append(lastElement.stringValue.formatted())
                 }
-                
             }
-            print("resultsArray: " + resultsArray.debugDescription)
-            //print(description.debugDescription)
         }
     }
-    
-    var description: String?
     
     private enum Operation {
         case constant(Double, String)
@@ -80,55 +173,7 @@ struct CalculatorBrain {
         "rand" : Operation.random(randomValueFromZeroToOne, {"\($0)"})
     ]
     
-    mutating func performOperation(_ symbol: String) {
-        if let operation = operations[symbol] {
-            switch operation {
-            case .constant(let value, let stringRepresentation):
-                if resultsArray.last?.operand == nil {
-                    accumulator = value
-                    resultsArray.append((value, stringRepresentation, nil))
-                }
-            case .unary(let function, let stringRepresentationFunc):
-                if accumulator != nil {
-                    if resultsArray.last?.operand == nil {
-                        resultsArray.append((accumulator!,stringRepresentationFunc(accumulator!.formatted()), nil))
-                    } else {
-                        resultsArray.removeLast()
-                        resultsArray.append((accumulator!,stringRepresentationFunc(accumulator!.formatted()), nil))
-                    }
-                    accumulator = function(accumulator!)
-                }
-            case .binary(let function, let precedenceOfOp):
-                if accumulator != nil {
-                    if resultsArray.isEmpty {
-                        resultsArray.append((accumulator!, "\(accumulator!)", nil))
-                    }
-                    performPendingBinaryOperation()
-                    pendingBinaryOperation = PendingBinaryOperation(binaryFunction: function, firstOperand: accumulator!, binaryFunctionDescription: symbol)
-                    resultsArray.append((nil, symbol, nil))
-                    accumulator = nil
-                    previousPrecedence = currentPrecedence
-                    currentPrecedence = precedenceOfOp
-                    
-                }
-            case .random(let function, let stringRepresentation):
-                if resultsArray.last?.operand == nil {
-                    accumulator = function()
-                    resultsArray.append((accumulator!, stringRepresentation(accumulator!), nil))
-                } else {
-                    
-                }
-            case .equals:
-                print(tree?.description ?? "Can't print the tree's description.")
-                performPendingBinaryOperation()
-                currentPrecedence = .high
-                resultsArray.removeAll()
-            case .C:
-                clear()
-            }
-        }
-    }
-    private mutating func clear() {
+        private mutating func clear() {
         accumulator = nil
         description = nil
         resultsArray.removeAll()
@@ -136,7 +181,7 @@ struct CalculatorBrain {
         currentPrecedence = .high
         tree = nil
     }
-    mutating func performPendingBinaryOperation(){
+    mutating private func performPendingBinaryOperation(){
         if pendingBinaryOperation != nil && accumulator != nil {
             accumulator = pendingBinaryOperation!.perform(with: accumulator!)
             pendingBinaryOperation = nil
@@ -145,6 +190,7 @@ struct CalculatorBrain {
     
     private var pendingBinaryOperation: PendingBinaryOperation?
     
+    //This struct stores info needed to perform pending operation (uses accumulator).
     private struct PendingBinaryOperation {
         let binaryFunction: (Double,Double)->Double
         let firstOperand: Double
@@ -156,20 +202,7 @@ struct CalculatorBrain {
     }
     
     
-    mutating func setOperand(_ operand: Double) {
-        accumulator = operand
-        resultsArray.append((accumulator!, "\(accumulator!)", nil))
-        buildBinaryTree(with: operand)
-    }
-    
-    var result: Double? {
-        get {
-            return accumulator
-        }
-    }
-    
-    //precedence binary tree implementation
-    
+    //Precedence binary tree implementation used when the scientific calculator is on (doen't use accumulator).
     private enum Precedence: Int {
         case low = 0
         case high
@@ -178,7 +211,7 @@ struct CalculatorBrain {
     private var currentPrecedence = Precedence.high
     private var previousPrecedence = Precedence.high
     
-    var tree: PrecedenceBinaryTree<Any>?
+    private var tree: PrecedenceBinaryTree<Any>?
     
     private mutating func buildBinaryTree(with newValue: Any) {
         let tempNode = PrecedenceBinaryTree.node(.empty, newValue, .empty)
@@ -186,8 +219,7 @@ struct CalculatorBrain {
         if tree == nil {
             tree = tempNode
         }
-        print("Tree: " + (tree?.description)!)
-        print("**************************")
+
         if pendingBinaryOperation != nil {
             let operation = pendingBinaryOperation?.binaryFunctionDescription
             if currentPrecedence.rawValue > previousPrecedence.rawValue {
