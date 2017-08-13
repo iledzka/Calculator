@@ -17,6 +17,15 @@ class ViewController: UIViewController {
     var userIsInTheMiddleOfTyping: Bool = false
     
     
+    @IBAction func standardToScientificButton(_ sender: UIButton) {
+        if brain.scientificButtonIsOn == true {
+            brain.scientificButtonIsOn = false
+            sender.setTitle("Std", for: .normal)
+        } else {
+            brain.scientificButtonIsOn = true
+            sender.setTitle("Sci", for: .normal)
+        }
+    }
     @IBAction func touchDigit(_ sender: UIButton) {
         let digit = sender.currentTitle!
         
@@ -54,6 +63,7 @@ class ViewController: UIViewController {
         }
     }
     
+  
     private var brain = CalculatorBrain()
     
     @IBAction func performOperation(_ sender: UIButton) {

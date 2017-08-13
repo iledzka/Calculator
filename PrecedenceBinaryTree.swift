@@ -34,11 +34,11 @@ extension PrecedenceBinaryTree: CustomStringConvertible {
 }
 
 extension PrecedenceBinaryTree {
-    public func traverseInOrder(process: (T) -> Void) {
+    public func traversePostOrder(process: (T) -> Void) {
         if case let .node(left, value, right) = self {
-            left.traverseInOrder(process: process)
+            left.traversePostOrder(process: process)
+            right.traversePostOrder(process: process)
             process(value)
-            right.traverseInOrder(process: process)
         }
     }
 }
