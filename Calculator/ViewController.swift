@@ -16,6 +16,7 @@ class ViewController: UIViewController {
     
     var userIsInTheMiddleOfTyping: Bool = false
     
+    var savedProgram: CalculatorBrain.PropertyList?
     
     @IBAction func standardToScientificButton(_ sender: UIButton) {
         if brain.scientificButtonIsOn == true {
@@ -79,11 +80,38 @@ class ViewController: UIViewController {
         } else {
             display.text = " "
         }
-        updateUI()
+        updateDescriptionLabel()
         
     }
+
+    @IBAction func setVariable(_ sender: UIButton) {
+        if let variableName = sender.currentTitle {
+            let index = variableName.index(after: variableName.startIndex)
+            let substring = variableName.substring(from: index)
+            brain.variablesForProgram.push((substring, displayValue))
+            userIsInTheMiddleOfTyping = false
+        }
+    }
+
+    @IBAction func addVariable(_ sender: UIButton) {
+        if let variableName = sender.currentTitle {
+            brain.setOperandFrom(saved: variableName)
+            display.text = variableName
+        }
+    }
     
-    private func updateUI() {
+    @IBAction func save() {
+        savedProgram = brain.program
+    }
+    
+    @IBAction func restore() {
+        if savedProgram != nil {
+            brain.program = savedProgram!
+            displayValue = brain.result ?? 0.0
+            updateDescriptionLabel()
+        }
+    }
+    private func updateDescriptionLabel() {
         if brain.resultIsPending {
             descriptionDisplay.text = (brain.description ?? " ") + "..."
         } else if display.text! != " " {

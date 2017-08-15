@@ -8,18 +8,18 @@
 
 import Foundation
 
-struct StackMachine<Double> {
-    fileprivate var values = [Double]()
+struct StackMachine<T> {
+    fileprivate var values = [T]()
     
-    mutating func push(_ element: Double) {
+    mutating func push(_ element: T) {
         values.append(element)
     }
     
-    mutating func pop() -> Double?{
+    mutating func pop() -> T?{
         return values.popLast()
     }
     
-    func topValue() -> Double? {
+    func topValue() -> T? {
         return values.last
     }
     

@@ -25,6 +25,8 @@ struct CalculatorBrain {
 
 // Public API
     
+    var variablesForProgram = StackMachine<(String, Double)>()
+
     var description: String?
     
     var result: Double? {
@@ -43,10 +45,23 @@ struct CalculatorBrain {
     mutating func setOperand(_ operand: Double) {
         accumulator = operand
         resultsArray.append((accumulator!, "\(accumulator!)"))
+        internalProgram.append(accumulator as AnyObject)
+    }
+    
+    mutating func setOperandFrom(saved variable: String) {
+        if let (key, value) = variablesForProgram.topValue(){
+            assert(key == variable, "Variable doesn't match key in setOperandFrom()")
+            accumulator = value
+            resultsArray.append((accumulator!, key))
+        } else {
+            accumulator = 0.0
+            resultsArray.append((accumulator!, variable))
+        }
     }
     
     mutating func performOperation(_ symbol: String) {
         if let operation = operations[symbol] {
+            internalProgram.append(symbol as AnyObject)
             switch operation {
             case .constant(let value, let stringRepresentation):
                 if resultsArray.last?.operand == nil {
@@ -86,7 +101,7 @@ struct CalculatorBrain {
                     resultsArray.append((accumulator!, stringRepresentation(accumulator!)))
                 }
             case .equals:
-                buildBinaryTree(with: accumulator!)
+                buildBinaryTree(with: accumulator ?? 0)
                 tree?.traversePostOrder { s in
                     print(s)
                     switch s {
@@ -98,7 +113,7 @@ struct CalculatorBrain {
                             if case .binary(let function, _) = operation {
                                 //values need to be passed in reverse order to maintain the order of operations
                                 let firstValue = calculationsStack.pop()!
-                                let tempResult = function(calculationsStack.pop()!, firstValue)
+                                let tempResult = function(calculationsStack.pop()!, firstValue )
                                 calculationsStack.push(tempResult)
                             }
                         }
@@ -111,7 +126,6 @@ struct CalculatorBrain {
                 } else {
                     accumulator = calculationsStack.topValue()
                 }
-                print("RESULT OF TREE: " + String(describing: calculationsStack.topValue()))
                
                 currentPrecedence = .high
                 resultsArray.removeAll()
@@ -121,9 +135,36 @@ struct CalculatorBrain {
             }
         }
     }
-
+    
+    typealias PropertyList = AnyObject
+    
+    var program: PropertyList {
+        get {
+            return internalProgram as CalculatorBrain.PropertyList
+        }
+        set {
+            clear()
+            if let arrayOfOps = newValue as? [AnyObject] {
+                for op in arrayOfOps {
+                    if let numericValue = op as? Double {
+                        setOperand(numericValue)
+                    } else if let stringValue = op as? String {
+                        //this will be changed to check for any upper case letter - make it more generic
+                        if stringValue.contains("M") {
+                            setOperandFrom(saved: stringValue)
+                        } else {
+                            performOperation(stringValue)
+                        }
+                    }
+                }
+            }
+        }
+    }
     
 // Private API
+    
+    private var internalProgram = [AnyObject]() { didSet { print(internalProgram.description) }}
+    
     private var calculationsStack = StackMachine<Double>()
     
     private var accumulator: Double? { didSet { print("acc: " + String(describing: accumulator)) } }
@@ -173,13 +214,14 @@ struct CalculatorBrain {
         "rand" : Operation.random(randomValueFromZeroToOne, {"\($0)"})
     ]
     
-        private mutating func clear() {
+    private mutating func clear() {
         accumulator = nil
         description = nil
         resultsArray.removeAll()
         pendingBinaryOperation = nil
         currentPrecedence = .high
         tree = nil
+        internalProgram.removeAll()
     }
     mutating private func performPendingBinaryOperation(){
         if pendingBinaryOperation != nil && accumulator != nil {
