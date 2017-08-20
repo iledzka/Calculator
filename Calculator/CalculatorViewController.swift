@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class CalculatorViewController: UIViewController {
     
     @IBOutlet weak var display: UILabel!
     
@@ -17,6 +17,7 @@ class ViewController: UIViewController {
     var userIsInTheMiddleOfTyping: Bool = false
     
     var savedProgram: CalculatorBrain.PropertyList?
+    
     
     @IBAction func standardToScientificButton(_ sender: UIButton) {
         if brain.scientificButtonIsOn == true {
@@ -54,6 +55,14 @@ class ViewController: UIViewController {
         }
         
     }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "Show Graph" {
+            if let graphViewController = segue.destination as? GraphViewController {
+                
+            }
+        }
+    }
+    
     
     var displayValue: Double {
         get {
