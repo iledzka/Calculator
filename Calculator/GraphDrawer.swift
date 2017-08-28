@@ -12,7 +12,7 @@ import UIKit
 struct GraphDrawer
 {
     var color: UIColor
-    var contentScaleFactor: CGFloat {didSet { print("contentScaleFactor" + String(describing:contentScaleFactor))}}
+    var contentScaleFactor: CGFloat
     
     init(color: UIColor = UIColor.black, contentScaleFactor: CGFloat = 1) {
         self.color = color
@@ -28,14 +28,13 @@ struct GraphDrawer
         let numberOfPixels = (rect.maxX - rect.minX) * screenScaleFactor
         
         for pixel in 0...Int(numberOfPixels) {
-            let y = expression((CGFloat(pixel) - origin.x) / pointsPerUnit) * pointsPerUnit * -1 * sin(CGFloat(pixel))
+            let y = expression((CGFloat(pixel) - origin.x) / pointsPerUnit) * pointsPerUnit * -1
             if y.isNormal && !y.isZero {
                 point = CGPoint(x: CGFloat(pixel), y: (y * contentScaleFactor) + origin.y)
             }
             if !path.isEmpty {
                 path.addLine(to: point)
             }
-            //print(point)
             path.move(to: point)
         }
         return path

@@ -14,10 +14,14 @@ class CalculatorViewController: UIViewController {
     
     @IBOutlet weak var descriptionDisplay: UILabel!
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        splitViewController?.delegate = self as? UISplitViewControllerDelegate
+    }
+    
     var userIsInTheMiddleOfTyping: Bool = false
     
     var savedProgram: CalculatorBrain.PropertyList?
-    
     
     @IBAction func standardToScientificButton(_ sender: UIButton) {
         if brain.scientificButtonIsOn == true {
@@ -62,7 +66,6 @@ class CalculatorViewController: UIViewController {
             }
         }
     }
-    
     
     var displayValue: Double {
         get {
@@ -165,5 +168,13 @@ extension String {
     }
     var dropLast: String {
         return dropLast()
+    }
+}
+
+//display master first on iphone portrait mode
+extension CalculatorViewController {
+    func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
+        print("delegate fired")
+        return true
     }
 }

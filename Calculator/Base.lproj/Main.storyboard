@@ -133,7 +133,7 @@
                                                         <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                                         <state key="normal" title="📈"/>
                                                         <connections>
-                                                            <segue destination="hkH-o7-Kds" kind="show" identifier="Show Graph" id="jdr-T3-Cma"/>
+                                                            <segue destination="hkH-o7-Kds" kind="showDetail" identifier="Show Graph" action="showViewController:sender:" id="jdr-T3-Cma"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -465,6 +465,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="jdr-T3-Cma"/>
+        <segue reference="QCW-KE-RrQ"/>
     </inferredMetricsTieBreakers>
 </document>

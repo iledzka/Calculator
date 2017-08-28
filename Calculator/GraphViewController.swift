@@ -10,7 +10,7 @@ import UIKit
 
 class GraphViewController: UIViewController {
 
-
+    
     @IBOutlet weak var graphView: GraphView! {
         didSet {
             let pinchRecognizer: UIPinchGestureRecognizer = UIPinchGestureRecognizer(target: graphView, action: #selector(GraphView.changeScale(byReactingTo:)))
@@ -19,6 +19,7 @@ class GraphViewController: UIViewController {
             panRecognizer.minimumNumberOfTouches = 1
             panRecognizer.maximumNumberOfTouches = 1
             graphView.addGestureRecognizer(panRecognizer)
+            
         }
     }
 }

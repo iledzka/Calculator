@@ -9,27 +9,47 @@
 import UIKit
 
 @IBDesignable
-class GraphView: UIView {
+class GraphView: UIView, UIGestureRecognizerDelegate {
     
     // Public API
     
     @IBInspectable
-    var scale: CGFloat = 1.0 {
+    var scale: CGFloat = 1 {
         didSet {
             axes.contentScaleFactor = scale
             graph.contentScaleFactor = scale
             setNeedsDisplay()
         }
     }
-    var centerOfAxes: CGPoint = CGPoint() { didSet { resetOrigin = false; setNeedsDisplay() } }
-    var pointsPerUnit: CGFloat = 50
+    var centerOfAxes: CGPoint = CGPoint() {
+        didSet {
+            resetOrigin = false
+            setNeedsDisplay()
+        }
+    }
+    var pointsPerUnit: CGFloat = 50 { didSet { setNeedsDisplay() }}
     
+    override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer is UIPinchGestureRecognizer {
+            if pointsPerUnit.isLess(than: 10) {
+                pointsPerUnit = 10
+                return false
+            } else if pointsPerUnit > 500 {
+                pointsPerUnit = 500
+                return false
+            }
+        }
+        return true
+    }
     
     func changeScale(byReactingTo pinchRecognizer: UIPinchGestureRecognizer) {
+        pinchRecognizer.delegate = self
         switch pinchRecognizer.state {
         case .changed,.ended:
-            scale *= pinchRecognizer.scale
-            pointsPerUnit *= scale
+            var tempScale = scale
+            tempScale *= pinchRecognizer.scale
+            let scaleBoundaries = max(10, min(tempScale * pointsPerUnit, 500))
+            pointsPerUnit = scaleBoundaries
             pinchRecognizer.scale = 1
         default:
             break
