@@ -10,14 +10,19 @@ import UIKit
 
 class CalculatorViewController: UIViewController {
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.isNavigationBarHidden = true
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.isNavigationBarHidden = false
+    }
+    
     @IBOutlet weak var display: UILabel!
     
     @IBOutlet weak var descriptionDisplay: UILabel!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        splitViewController?.delegate = self as? UISplitViewControllerDelegate
-    }
     
     var userIsInTheMiddleOfTyping: Bool = false
     
@@ -65,6 +70,15 @@ class CalculatorViewController: UIViewController {
                 
             }
         }
+    }
+    
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
+        if identifier == "Show Graph" {
+            if brain.resultIsPending || brain.result == nil {
+                return false
+            }
+        }
+        return true
     }
     
     var displayValue: Double {
@@ -125,11 +139,11 @@ class CalculatorViewController: UIViewController {
     }
     private func updateDescriptionLabel() {
         if brain.resultIsPending {
-            descriptionDisplay.text = (brain.description ?? " ") + "..."
+            descriptionDisplay.text = (brain.description ?? "0") + "..."
         } else if display.text! != " " {
-            descriptionDisplay.text = (brain.description ?? " ") + "="
+            descriptionDisplay.text = (brain.description ?? "0") + "="
         } else {
-            descriptionDisplay.text = " "
+            descriptionDisplay.text = "0"
         }
     }
     
@@ -168,13 +182,5 @@ extension String {
     }
     var dropLast: String {
         return dropLast()
-    }
-}
-
-//display master first on iphone portrait mode
-extension CalculatorViewController {
-    func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
-        print("delegate fired")
-        return true
     }
 }

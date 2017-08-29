@@ -20,7 +20,6 @@ private func randomValueFromZeroToOne() -> Double {
     return Double(arc4random()) / Double(UInt32.max)
 }
 
-
 struct CalculatorBrain {
 
 // Public API
@@ -40,7 +39,7 @@ struct CalculatorBrain {
             return pendingBinaryOperation != nil
         }
     }
-    var scientificButtonIsOn = false { didSet { print("scientificButtonIsOn changed to \(scientificButtonIsOn)")}}
+    var scientificButtonIsOn = false
     
     mutating func setOperand(_ operand: Double) {
         accumulator = operand
@@ -164,11 +163,11 @@ struct CalculatorBrain {
     
 // Private API
     
-    private var internalProgram = [AnyObject]() { didSet { print(internalProgram.description) }}
+    private var internalProgram = [AnyObject]()
     
     private var calculationsStack = StackMachine<Double>()
     
-    private var accumulator: Double? { didSet { print("acc: " + String(describing: accumulator)) } }
+    private var accumulator: Double?
     
     private var resultsArray = [(operand: Double?, stringValue: String)]() {
         willSet {
@@ -245,7 +244,7 @@ struct CalculatorBrain {
     }
     
     
-    //Precedence binary tree implementation used when the scientific calculator is on (doen't use accumulator).
+    //Precedence binary tree implementation used when the scientific calculator is on (dosen't use accumulator).
     private enum Precedence: Int {
         case low = 0
         case high
