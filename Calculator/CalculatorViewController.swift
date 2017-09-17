@@ -23,10 +23,10 @@ class CalculatorViewController: UIViewController {
     
     @IBOutlet weak var descriptionDisplay: UILabel!
     
-    
     var userIsInTheMiddleOfTyping: Bool = false
     
     var savedProgram: CalculatorBrain.PropertyList?
+    
     
     @IBAction func standardToScientificButton(_ sender: UIButton) {
         if brain.scientificButtonIsOn == true {
@@ -64,11 +64,15 @@ class CalculatorViewController: UIViewController {
         }
         
     }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "Show Graph" {
-            if let graphViewController = segue.destination as? GraphViewController {
-                
-            }
+        var destinationViewController = segue.destination
+        if let navigationController = destinationViewController as? UINavigationController {
+            destinationViewController = navigationController.visibleViewController ?? destinationViewController
+        }
+        if segue.identifier == "Show Graph", let graphViewController = destinationViewController as? GraphViewController {
+            graphViewController.mathOperation = brain.program
+            
         }
     }
     
@@ -104,7 +108,7 @@ class CalculatorViewController: UIViewController {
         if let result = brain.result {
             displayValue = result
         } else {
-            display.text = " "
+            display.text = "0"
         }
         updateDescriptionLabel()
         
@@ -137,10 +141,15 @@ class CalculatorViewController: UIViewController {
             updateDescriptionLabel()
         }
     }
+    
+    //GraphDelegate
+    func doEvaluate(with expression: AnyObject) {
+        brain.program = expression
+    }
     private func updateDescriptionLabel() {
         if brain.resultIsPending {
             descriptionDisplay.text = (brain.description ?? "0") + "..."
-        } else if display.text! != " " {
+        } else if brain.result != nil {
             descriptionDisplay.text = (brain.description ?? "0") + "="
         } else {
             descriptionDisplay.text = "0"

@@ -12,6 +12,8 @@ import UIKit
 class GraphView: UIView, UIGestureRecognizerDelegate {
     
     // Public API
+
+    var mathOperation: CalculatorBrain.PropertyList?
     
     @IBInspectable
     var scale: CGFloat = 1 {
@@ -67,9 +69,11 @@ class GraphView: UIView, UIGestureRecognizerDelegate {
         }
     }
     
-
+    
    
     // Private API
+    
+    
     private var resetOrigin: Bool = true { didSet { if resetOrigin { setNeedsDisplay() } } }
     private var axes = AxesDrawer()
     private var graph = GraphDrawer()
@@ -86,7 +90,10 @@ class GraphView: UIView, UIGestureRecognizerDelegate {
     override func draw(_ rect: CGRect) {
 
         createAxes(in: rect)
-        graph.drawGraph(in: rect, origin: centerOfAxes, screenScaleFactor: UIScreen.main.scale, pointsPerUnit: pointsPerUnit).stroke()
+        if mathOperation != nil {
+            graph.drawGraph(in: rect, for: mathOperation!, origin: centerOfAxes, pointsPerUnit: pointsPerUnit).stroke()
+        }
+        
         
     }
 

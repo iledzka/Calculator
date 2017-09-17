@@ -49,6 +49,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2B2E99FA1F69AF2C0068DF5A /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				2B7B81BF1F05726600D83835 /* CalculatorViewController.swift */,
+				2BDDFA921F488EE3006B74A5 /* GraphViewController.swift */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		2B2E99FB1F69AF4B0068DF5A /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2B7B81D01F05A22F00D83835 /* CalculatorBrain.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		2B2E99FC1F69AF700068DF5A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2B7B81C11F05726600D83835 /* Main.storyboard */,
+				2B7B81C61F05726600D83835 /* LaunchScreen.storyboard */,
+				2BDDFA931F488EE3006B74A5 /* GraphView.swift */,
+				2BDDFA941F488EE3006B74A5 /* GraphDrawer.swift */,
+				2BDDFA951F488EE3006B74A5 /* AxesDrawer.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
 		2B7B81B11F05726600D83835 = {
 			isa = PBXGroup;
 			children = (
@@ -68,14 +97,10 @@
 		2B7B81BC1F05726600D83835 /* Calculator */ = {
 			isa = PBXGroup;
 			children = (
-				2B57D98F1F3A066F00809EAA /* StackMachine.swift */,
 				2B7B81CF1F05728600D83835 /* Supporting Files */,
-				2B7B81BF1F05726600D83835 /* CalculatorViewController.swift */,
-				2B8AFA301F25E6AF003456DA /* PrecedenceBinaryTree.swift */,
-				2B7B81D01F05A22F00D83835 /* CalculatorBrain.swift */,
-				2B7B81C11F05726600D83835 /* Main.storyboard */,
-				2B7B81C61F05726600D83835 /* LaunchScreen.storyboard */,
-				2BDDFA9A1F488EF0006B74A5 /* GraphMVC */,
+				2B2E99FA1F69AF2C0068DF5A /* Controllers */,
+				2B2E99FB1F69AF4B0068DF5A /* Models */,
+				2B2E99FC1F69AF700068DF5A /* Views */,
 			);
 			path = Calculator;
 			sourceTree = "<group>";
@@ -83,22 +108,13 @@
 		2B7B81CF1F05728600D83835 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				2B8AFA301F25E6AF003456DA /* PrecedenceBinaryTree.swift */,
+				2B57D98F1F3A066F00809EAA /* StackMachine.swift */,
 				2B7B81BD1F05726600D83835 /* AppDelegate.swift */,
 				2B7B81C41F05726600D83835 /* Assets.xcassets */,
 				2B7B81C91F05726600D83835 /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		2BDDFA9A1F488EF0006B74A5 /* GraphMVC */ = {
-			isa = PBXGroup;
-			children = (
-				2BDDFA921F488EE3006B74A5 /* GraphViewController.swift */,
-				2BDDFA931F488EE3006B74A5 /* GraphView.swift */,
-				2BDDFA941F488EE3006B74A5 /* GraphDrawer.swift */,
-				2BDDFA951F488EE3006B74A5 /* AxesDrawer.swift */,
-			);
-			name = GraphMVC;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

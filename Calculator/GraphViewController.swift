@@ -9,7 +9,6 @@
 import UIKit
 
 class GraphViewController: UIViewController {
-
     
     @IBOutlet weak var graphView: GraphView! {
         didSet {
@@ -20,7 +19,17 @@ class GraphViewController: UIViewController {
             panRecognizer.maximumNumberOfTouches = 1
             graphView.addGestureRecognizer(panRecognizer)
             
+            
+
         }
     }
+    
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        graphView.mathOperation = mathOperation
+    }
+    
+    var mathOperation: CalculatorBrain.PropertyList?
 }
 
