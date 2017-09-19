@@ -40,7 +40,7 @@ struct CalculatorBrain {
             return pendingBinaryOperation != nil
         }
     }
-    var scientificButtonIsOn = false { didSet { print("scientificButtonIsOn changed to \(scientificButtonIsOn)")}}
+    var scientificButtonIsOn = false
     
     mutating func setOperand(_ operand: Double) {
         accumulator = operand
@@ -53,33 +53,41 @@ struct CalculatorBrain {
             assert(key == variable, "Variable doesn't match key in setOperandFrom()")
             accumulator = value
             resultsArray.append((accumulator!, key))
+            internalProgram.append(accumulator as AnyObject)
         } else {
             accumulator = 0.0
-            resultsArray.append((accumulator!, variable))
+            resultsArray.append((accumulator, variable))
+            internalProgram.append("M" as AnyObject)
         }
+<<<<<<< HEAD
         internalProgram.append(accumulator as AnyObject)
+=======
+        
+>>>>>>> b3825156e5211c8a1960f40d8fd201e12d28f83c
     }
     
     mutating func performOperation(_ symbol: String) {
         if let operation = operations[symbol] {
-            internalProgram.append(symbol as AnyObject)
             switch operation {
             case .constant(let value, let stringRepresentation):
                 if resultsArray.last?.operand == nil {
                     accumulator = value
                     buildBinaryTree(with: value)
                     resultsArray.append((value, stringRepresentation))
+                    internalProgram.append(symbol as AnyObject)
                 }
             case .unary(let function, let stringRepresentationFunc):
                 if accumulator != nil {
+                    let stringVal = resultsArray.last?.stringValue
                     if resultsArray.last?.operand == nil {
-                        resultsArray.append((accumulator!,stringRepresentationFunc(accumulator!.formatted())))
+                        resultsArray.append((accumulator, stringVal == nil ? stringRepresentationFunc(accumulator!.formatted()) : stringRepresentationFunc(stringVal!)))
                     } else {
                         resultsArray.removeLast()
-                        resultsArray.append((accumulator!,stringRepresentationFunc(accumulator!.formatted())))
+                        resultsArray.append((accumulator!, stringVal == nil ? stringRepresentationFunc(accumulator!.formatted()) : stringRepresentationFunc(stringVal!)))
                     }
                     accumulator = function(accumulator!)
                     buildBinaryTree(with: accumulator!)
+                    internalProgram.append(symbol as AnyObject)
                 }
             case .binary(let function, let precedenceOfOp):
                 if accumulator != nil {
@@ -93,18 +101,20 @@ struct CalculatorBrain {
                     accumulator = nil
                     previousPrecedence = currentPrecedence
                     currentPrecedence = precedenceOfOp
-                    
+                    internalProgram.append(symbol as AnyObject)
+                } else if variablesForProgram.isEmpty {
+                    print("IS EMPTY")
                 }
             case .random(let function, let stringRepresentation):
                 if resultsArray.last?.operand == nil {
                     accumulator = function()
                     buildBinaryTree(with: accumulator!)
                     resultsArray.append((accumulator!, stringRepresentation(accumulator!)))
+                    internalProgram.append(symbol as AnyObject)
                 }
             case .equals:
                 buildBinaryTree(with: accumulator ?? 0)
                 tree?.traversePostOrder { s in
-                    print(s)
                     switch s {
                     case is Double:
                         calculationsStack.push(s as! Double)
@@ -127,7 +137,7 @@ struct CalculatorBrain {
                 } else {
                     accumulator = calculationsStack.topValue()
                 }
-               
+                internalProgram.append(symbol as AnyObject)
                 currentPrecedence = .high
                 resultsArray.removeAll()
                 
@@ -150,7 +160,6 @@ struct CalculatorBrain {
                     if let numericValue = op as? Double {
                         setOperand(numericValue)
                     } else if let stringValue = op as? String {
-                        //this will be changed to check for any upper case letter - make it more generic
                         if stringValue.contains("M") {
                             setOperandFrom(saved: stringValue)
                         } else {
@@ -164,12 +173,13 @@ struct CalculatorBrain {
     
 // Private API
     
-    private var internalProgram = [AnyObject]() { didSet { print(internalProgram.description) }}
+    private var internalProgram = [AnyObject]() //{ didSet { print(internalProgram.description) }}
     
     private var calculationsStack = StackMachine<Double>()
     
-    private var accumulator: Double? { didSet { print("acc: " + String(describing: accumulator)) } }
+    private var accumulator: Double? //{ didSet { print("acc: " + String(describing: accumulator)) } }
     
+    //array of enums used to build description string
     private var resultsArray = [(operand: Double?, stringValue: String)]() {
         willSet {
             if let lastElement = newValue.last {
@@ -223,6 +233,7 @@ struct CalculatorBrain {
         currentPrecedence = .high
         tree = nil
         internalProgram.removeAll()
+        variablesForProgram.removeAll()
     }
     mutating private func performPendingBinaryOperation(){
         if pendingBinaryOperation != nil && accumulator != nil {

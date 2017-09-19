@@ -15,8 +15,12 @@ struct StackMachine<T> {
         values.append(element)
     }
     
-    mutating func pop() -> T?{
+    mutating func pop() -> T? {
         return values.popLast()
+    }
+    
+    mutating func removeAll() {
+        values = []
     }
     
     func topValue() -> T? {

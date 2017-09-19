@@ -8,7 +8,16 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class CalculatorViewController: UIViewController {
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.isNavigationBarHidden = true
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.isNavigationBarHidden = false
+    }
     
     @IBOutlet weak var display: UILabel!
     
@@ -56,6 +65,28 @@ class ViewController: UIViewController {
         
     }
     
+<<<<<<< HEAD:Calculator/ViewController.swift
+=======
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        var destinationViewController = segue.destination
+        if let navigationController = destinationViewController as? UINavigationController {
+            destinationViewController = navigationController.visibleViewController ?? destinationViewController
+        }
+        if segue.identifier == "Show Graph", let graphViewController = destinationViewController as? GraphViewController {
+            graphViewController.mathOperation = brain.program
+            
+        }
+    }
+    
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
+        if identifier == "Show Graph" {
+            if brain.resultIsPending || brain.result == nil {
+                return false
+            }
+        }
+        return true
+    }
+>>>>>>> b3825156e5211c8a1960f40d8fd201e12d28f83c:Calculator/CalculatorViewController.swift
     
     var displayValue: Double {
         get {
@@ -80,7 +111,7 @@ class ViewController: UIViewController {
         if let result = brain.result {
             displayValue = result
         } else {
-            display.text = " "
+            display.text = "0"
         }
         updateDescriptionLabel()
         
@@ -113,13 +144,18 @@ class ViewController: UIViewController {
             updateDescriptionLabel()
         }
     }
+    
+    //GraphDelegate
+    func doEvaluate(with expression: AnyObject) {
+        brain.program = expression
+    }
     private func updateDescriptionLabel() {
         if brain.resultIsPending {
-            descriptionDisplay.text = (brain.description ?? " ") + "..."
-        } else if display.text! != " " {
-            descriptionDisplay.text = (brain.description ?? " ") + "="
+            descriptionDisplay.text = (brain.description ?? "0") + "..."
+        } else if brain.result != nil {
+            descriptionDisplay.text = (brain.description ?? "0") + "="
         } else {
-            descriptionDisplay.text = " "
+            descriptionDisplay.text = "0"
         }
     }
     
