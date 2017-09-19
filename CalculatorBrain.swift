@@ -57,6 +57,7 @@ struct CalculatorBrain {
             accumulator = 0.0
             resultsArray.append((accumulator!, variable))
         }
+        internalProgram.append(accumulator as AnyObject)
     }
     
     mutating func performOperation(_ symbol: String) {

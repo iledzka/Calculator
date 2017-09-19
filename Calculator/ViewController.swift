@@ -18,6 +18,7 @@ class ViewController: UIViewController {
     
     var savedProgram: CalculatorBrain.PropertyList?
     
+    
     @IBAction func standardToScientificButton(_ sender: UIButton) {
         if brain.scientificButtonIsOn == true {
             brain.scientificButtonIsOn = false
@@ -54,6 +55,7 @@ class ViewController: UIViewController {
         }
         
     }
+    
     
     var displayValue: Double {
         get {
