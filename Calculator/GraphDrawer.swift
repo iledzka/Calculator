@@ -20,52 +20,36 @@ struct GraphDrawer
         self.contentScaleFactor = contentScaleFactor
     }
     mutating func drawGraph(in rect: CGRect, for expression: CalculatorBrain.PropertyList, origin: CGPoint, pointsPerUnit: CGFloat) -> UIBezierPath {
-        var points = [CGFloat?]()
         let numberOfPixels = (rect.maxX - rect.minX) * UIScreen.main.scale
+        let path = UIBezierPath()
+        var point: CGPoint?
+        
+        let xAxis = (rect.maxX - rect.minX) / pointsPerUnit
+        let positiveX = xAxis - (origin.x / pointsPerUnit)
+        let incrementVal = xAxis / numberOfPixels
         
         //resolve mathematical expression
         if let listOfOps = expression as? [AnyObject] {
-            for op in listOfOps {
-                if let variable = op as? String {
-                    if variable.contains("M") {
-                        let xAxis = (rect.maxX - rect.minX) / pointsPerUnit
-                        let positiveX = xAxis - (origin.x / pointsPerUnit)
-                        var negativeX = (xAxis - positiveX) * -1
-                        let incrementVal = xAxis / numberOfPixels
-                        negativeX -= incrementVal
+            
+            var negativeX = (xAxis - positiveX) * -1
+            negativeX -= incrementVal
+            //assign values to variable (if not set)
+            for pixel in 0...Int(numberOfPixels - 1) {
+                negativeX += incrementVal
+                let newExpression = listOfOps.map { element -> AnyObject in
+                    if element as? String == "M" {
                         
-                        for _ in 0...Int(numberOfPixels) {
-                            negativeX += incrementVal
-                            
-                            //assign values to variable (if not set)
-                            let newExpression = listOfOps.map { element -> AnyObject in
-                                if element as? String == variable {
-                                    return Double(negativeX) as AnyObject
-                                } else {
-                                    return element
-                                }
-                            }
-                            
-                            brain.program = newExpression as CalculatorBrain.PropertyList
-                            
-                            points.append(CGFloat((brain.result)!))
-                        }
+                        return Double(negativeX) as AnyObject
+                    } else {
+                        return element
                     }
                 }
-            }
-        }
-        let path = UIBezierPath()
-        
-        var point: CGPoint?
-        
-        if !points.isEmpty {
-            for pixel in 0...Int(numberOfPixels) {
-                if points[pixel] != nil {
-                    let y = points[pixel]! * pointsPerUnit * -1
+                
+                brain.program = newExpression as CalculatorBrain.PropertyList
+                if let result = brain.result {
+                    let y = CGFloat(result) * pointsPerUnit * -1
                     if y.isNormal && !y.isZero {
-                        
                         point = CGPoint(x: CGFloat(pixel) / UIScreen.main.scale, y: y + origin.y)
-                        
                     }
                     if let unwrappedPoint = point {
                         if !path.isEmpty {
@@ -73,11 +57,9 @@ struct GraphDrawer
                         }
                         path.move(to: unwrappedPoint)
                     }
-                    
                 }
             }
         }
-        
         return path
     }
 }

@@ -44,7 +44,7 @@ class CalculatorViewController: UIViewController {
         if userIsInTheMiddleOfTyping {
             if digit.contains("⇦") {
                 if textCurrentlyInDisplay.dropLast() == "" {
-                    display.text = " "
+                    display.text = "0"
                     userIsInTheMiddleOfTyping = false
                 } else {
                     display.text = textCurrentlyInDisplay.dropLast()
@@ -124,10 +124,12 @@ class CalculatorViewController: UIViewController {
     }
 
     @IBAction func addVariable(_ sender: UIButton) {
+        
         if let variableName = sender.currentTitle {
             brain.setOperandFrom(saved: variableName)
             display.text = variableName
         }
+        updateDescriptionLabel()
     }
     
     @IBAction func save() {

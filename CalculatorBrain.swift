@@ -54,10 +54,10 @@ struct CalculatorBrain {
             accumulator = value
             resultsArray.append((accumulator!, key))
             internalProgram.append(accumulator as AnyObject)
-        } else {
+        } else if resultsArray.last?.operand == nil {
             accumulator = 0.0
             resultsArray.append((accumulator, variable))
-            internalProgram.append("M" as AnyObject)
+            internalProgram.append(variable as AnyObject)
         }
         
     }
@@ -74,13 +74,16 @@ struct CalculatorBrain {
                 }
             case .unary(let function, let stringRepresentationFunc):
                 if accumulator != nil {
-                    let stringVal = resultsArray.last?.stringValue
-                    if resultsArray.last?.operand == nil {
-                        resultsArray.append((accumulator, stringVal == nil ? stringRepresentationFunc(accumulator!.formatted()) : stringRepresentationFunc(stringVal!)))
-                    } else {
-                        resultsArray.removeLast()
-                        resultsArray.append((accumulator!, stringVal == nil ? stringRepresentationFunc(accumulator!.formatted()) : stringRepresentationFunc(stringVal!)))
+                    let operand = resultsArray.last?.operand
+                    let stringValue = resultsArray.last?.stringValue
+                    var isNumber: Double?
+                    if stringValue != nil {
+                        isNumber = Double(stringValue!)
                     }
+                    if operand != nil {
+                        resultsArray.removeLast()
+                    }
+                    resultsArray.append((accumulator!, isNumber != nil ? stringRepresentationFunc(accumulator!.formatted()) : stringRepresentationFunc(stringValue!)))
                     accumulator = function(accumulator!)
                     buildBinaryTree(with: accumulator!)
                     internalProgram.append(symbol as AnyObject)
@@ -132,6 +135,7 @@ struct CalculatorBrain {
                     performPendingBinaryOperation()
                 } else {
                     accumulator = calculationsStack.topValue()
+                    pendingBinaryOperation = nil
                 }
                 internalProgram.append(symbol as AnyObject)
                 currentPrecedence = .high
@@ -185,6 +189,7 @@ struct CalculatorBrain {
                 if newValue.count > resultsArray.count {
                     description?.removeAll()
                     for stringValues in newValue {
+                        
                         description = description! + stringValues.stringValue.formatted()
                     }
                 } else {
@@ -211,7 +216,7 @@ struct CalculatorBrain {
         "sin" : Operation.unary(sin, {"sin(\($0))"}),
         "x²" : Operation.unary({$0 * $0}, {"(\($0))²"}),
         "x!" : Operation.unary(factorial, {"(\($0))!"}),
-        "±" : Operation.unary({-$0}, {"(\(-1 * Double($0)!))"}),
+        "±" : Operation.unary({-$0}, {"(-\($0))"}),
         "×" : Operation.binary(*, .high),
         "÷" : Operation.binary(/, .high),
         "+" : Operation.binary(+, .low),

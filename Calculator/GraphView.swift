@@ -92,6 +92,7 @@ class GraphView: UIView, UIGestureRecognizerDelegate {
         createAxes(in: rect)
         if mathOperation != nil {
             graph.drawGraph(in: rect, for: mathOperation!, origin: centerOfAxes, pointsPerUnit: pointsPerUnit).stroke()
+            
         }
         
         
