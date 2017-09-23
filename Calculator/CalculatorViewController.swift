@@ -65,8 +65,7 @@ class CalculatorViewController: UIViewController {
         
     }
     
-<<<<<<< HEAD:Calculator/ViewController.swift
-=======
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         var destinationViewController = segue.destination
         if let navigationController = destinationViewController as? UINavigationController {
@@ -86,7 +85,7 @@ class CalculatorViewController: UIViewController {
         }
         return true
     }
->>>>>>> b3825156e5211c8a1960f40d8fd201e12d28f83c:Calculator/CalculatorViewController.swift
+
     
     var displayValue: Double {
         get {
