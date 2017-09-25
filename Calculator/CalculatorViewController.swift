@@ -27,32 +27,36 @@ class CalculatorViewController: UIViewController {
     
     var savedProgram: CalculatorBrain.PropertyList?
     
-    
     @IBAction func standardToScientificButton(_ sender: UIButton) {
         if brain.scientificButtonIsOn == true {
             brain.scientificButtonIsOn = false
-            sender.setTitle("Std", for: .normal)
+            sender.isSelected = false
         } else {
             brain.scientificButtonIsOn = true
-            sender.setTitle("Sci", for: .normal)
+            sender.isSelected = true
         }
     }
     @IBAction func touchDigit(_ sender: UIButton) {
         let digit = sender.currentTitle!
         
         let textCurrentlyInDisplay = display.text!
-        if userIsInTheMiddleOfTyping {
-            if digit.contains("⇦") {
-                if textCurrentlyInDisplay.dropLast() == "" {
-                    display.text = "0"
-                    userIsInTheMiddleOfTyping = false
-                } else {
-                    display.text = textCurrentlyInDisplay.dropLast()
-                }
-            } else {
-                display.text = (textCurrentlyInDisplay.contains(".") && digit.contains(".")) ? textCurrentlyInDisplay : textCurrentlyInDisplay + digit.formatted()
+        
+        if digit.contains("⇦") {
+            if display.text == "0" {
+                brain.removeLastOperation()
+                save()
+                restore()
             }
+            display.text = textCurrentlyInDisplay.dropLast()
+            if textCurrentlyInDisplay.dropLast() == "" {
+                display.text = "0"
+                userIsInTheMiddleOfTyping = false
+            }
+            
         } else {
+            display.text = (textCurrentlyInDisplay.contains(".") && digit.contains(".")) ? textCurrentlyInDisplay : textCurrentlyInDisplay + digit.formatted()
+        }
+        if !userIsInTheMiddleOfTyping {
             if !digit.contains("⇦") {
                 if digit.contains(".") {
                     display.text = "0" + digit
@@ -65,7 +69,7 @@ class CalculatorViewController: UIViewController {
         
     }
     
-
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         var destinationViewController = segue.destination
         if let navigationController = destinationViewController as? UINavigationController {
@@ -85,7 +89,7 @@ class CalculatorViewController: UIViewController {
         }
         return true
     }
-
+    
     
     var displayValue: Double {
         get {
@@ -96,10 +100,17 @@ class CalculatorViewController: UIViewController {
         }
     }
     
-  
+    
     private var brain = CalculatorBrain()
     
+    @IBOutlet weak var exponentButton: UIButton!
     @IBAction func performOperation(_ sender: UIButton) {
+        if sender.currentTitle == "xʸ" {
+            sender.isSelected = true
+        } else {
+            exponentButton.isSelected = false
+        }
+        
         if userIsInTheMiddleOfTyping {
             brain.setOperand(displayValue)
             userIsInTheMiddleOfTyping = false
@@ -115,7 +126,7 @@ class CalculatorViewController: UIViewController {
         updateDescriptionLabel()
         
     }
-
+    
     @IBAction func setVariable(_ sender: UIButton) {
         if let variableName = sender.currentTitle {
             let index = variableName.index(after: variableName.startIndex)
@@ -124,7 +135,7 @@ class CalculatorViewController: UIViewController {
             userIsInTheMiddleOfTyping = false
         }
     }
-
+    
     @IBAction func addVariable(_ sender: UIButton) {
         
         if let variableName = sender.currentTitle {
@@ -160,7 +171,7 @@ class CalculatorViewController: UIViewController {
         }
     }
     
-   
+    
 }
 
 extension Double {
@@ -172,7 +183,7 @@ extension Double {
         return formatter.string(from: NSNumber(floatLiteral: self))!
     }
     
-   
+    
 }
 
 extension String {
