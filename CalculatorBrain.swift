@@ -29,7 +29,7 @@ private func makeExponent(of value: Double) -> (Double) -> Double {
     return addSubscript
 }
 
-func exponentize(str: String) -> String {
+private func exponentize(str: String) -> String {
     
     let supers = [
         "1": "\u{00B9}",
@@ -96,11 +96,12 @@ struct CalculatorBrain {
             exponentString = exponentString! + "^" + operand.formatted()
             resultsArray.append((accumulator!, exponentize(str: exponentString!)))
             exponentMaker = nil
+            internalProgram.append(operand as AnyObject)
         } else {
             accumulator = operand
             resultsArray.append((accumulator!, accumulator!.formatted()))
+            internalProgram.append(accumulator as AnyObject)
         }
-        internalProgram.append(accumulator as AnyObject)
     }
     
     mutating func setOperandFrom(saved variable: String) {
@@ -138,7 +139,7 @@ struct CalculatorBrain {
                     if operand != nil {
                         resultsArray.removeLast()
                     }
-                    resultsArray.append((accumulator!, isNumber == nil ? stringRepresentationFunc(accumulator!.formatted()) : stringRepresentationFunc(stringValue!)))
+                    resultsArray.append((accumulator!, isNumber != nil ? stringRepresentationFunc(accumulator!.formatted()) : stringRepresentationFunc(stringValue ?? accumulator!.formatted())))
                     accumulator = function(accumulator!)
                     buildBinaryTree(with: accumulator!)
                     internalProgram.append(symbol as AnyObject)
@@ -168,14 +169,19 @@ struct CalculatorBrain {
                 }
             case .exponent(let function, let baseValueString):
                 if accumulator != nil && exponentMaker == nil{
+                    var displayedValue = resultsArray.last?.stringValue
+                    displayedValue = displayedValue == "M" ? displayedValue : nil
                     if !resultsArray.isEmpty {
                         resultsArray.removeLast()
                     }
+                    
                     exponentMaker = function(accumulator!)
-                    exponentString = baseValueString(accumulator!.formatted())
+                    exponentString = baseValueString(displayedValue ?? accumulator!.formatted())
+                    internalProgram.append("xʸ" as AnyObject)
                 }
             case .equals:
                 guard exponentMaker == nil else { break }
+                guard resultIsPending == true else { break }
                 buildBinaryTree(with: accumulator ?? 0)
                 tree?.traversePostOrder { s in
                     switch s {
@@ -220,16 +226,29 @@ struct CalculatorBrain {
         set {
             clear()
             if let arrayOfOps = newValue as? [AnyObject] {
+                //count keeps track of the index to resolve xʸ operation.
+                var count = 0
+                var needToSkipOperation = false
                 for op in arrayOfOps {
                     if let numericValue = op as? Double {
+                        if needToSkipOperation {
+                            needToSkipOperation = false
+                            exponentMaker = nil
+                            continue
+                        }
                         setOperand(numericValue)
                     } else if let stringValue = op as? String {
                         if stringValue.contains("M") {
                             setOperandFrom(saved: stringValue)
+                        } else if stringValue.contains("xʸ"){
+                            performOperation(stringValue)
+                            setOperand((arrayOfOps[arrayOfOps.index(after: count)] as? Double)!)
+                            needToSkipOperation = true
                         } else {
                             performOperation(stringValue)
                         }
                     }
+                    count = count + 1
                 }
             }
         }
@@ -243,13 +262,13 @@ struct CalculatorBrain {
     
 // Private API
     
-    private var internalProgram = [AnyObject]() //{ didSet { print(internalProgram.description) }}
+    private var internalProgram = [AnyObject]() { didSet { print("internalProgram: " + internalProgram.description) }}
     
     private var calculationsStack = StackMachine<Double>()
     
-    private var accumulator: Double? //{ didSet { print("acc: " + String(describing: accumulator)) } }
+    private var accumulator: Double? { didSet { print("acc: " + String(describing: accumulator)) } }
     
-    private var exponentMaker: ((Double) -> Double)?
+    private var exponentMaker: ((Double) -> Double)? { didSet { print("EXPONENT MARKER changed")}}
     
     private var exponentString: String?
     
@@ -263,13 +282,17 @@ struct CalculatorBrain {
                 if newValue.count > resultsArray.count {
                     description?.removeAll()
                     for stringValues in newValue {
-                        
                         description = description! + stringValues.stringValue.formatted()
                     }
                 } else {
                     description?.append(lastElement.stringValue.formatted())
                 }
             }
+        }
+        didSet {
+            print("RESULTS ARRAY: ")
+            print(oldValue)
+            print("END OF RESULTS ARRAY.")
         }
     }
     
@@ -310,7 +333,6 @@ struct CalculatorBrain {
         currentPrecedence = .high
         tree = nil
         internalProgram.removeAll()
-        variablesForProgram.removeAll()
         exponentMaker = nil
     }
     mutating private func performPendingBinaryOperation(){

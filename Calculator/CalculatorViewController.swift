@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CalculatorViewController: UIViewController {
+class CalculatorViewController: UIViewController, UISplitViewControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -17,6 +17,14 @@ class CalculatorViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.navigationController?.isNavigationBarHidden = false
+    }
+    weak var delegate: UISplitViewControllerDelegate?
+    override func viewDidLoad() {
+        splitViewController?.delegate = self
+    }
+    
+    func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
+        return true
     }
     
     @IBOutlet weak var display: UILabel!
@@ -43,9 +51,13 @@ class CalculatorViewController: UIViewController {
         
         if digit.contains("⇦") {
             if display.text == "0" {
-                brain.removeLastOperation()
-                save()
-                restore()
+                if brain.variablesForProgram.isEmpty {
+                    brain.removeLastOperation()
+                    save()
+                    restore()
+                } else {
+                    let _ = brain.variablesForProgram.pop()
+                }
             }
             display.text = textCurrentlyInDisplay.dropLast()
             if textCurrentlyInDisplay.dropLast() == "" {
@@ -93,7 +105,7 @@ class CalculatorViewController: UIViewController {
     
     var displayValue: Double {
         get {
-            return Double(display.text!)!
+            return Double(display.text!) ?? 0
         }
         set {
             display.text = newValue.formatted()
@@ -138,7 +150,7 @@ class CalculatorViewController: UIViewController {
     
     @IBAction func addVariable(_ sender: UIButton) {
         
-        if let variableName = sender.currentTitle {
+        if let variableName = sender.currentTitle, !userIsInTheMiddleOfTyping {
             brain.setOperandFrom(saved: variableName)
             display.text = variableName
         }

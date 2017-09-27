@@ -47,6 +47,8 @@ struct GraphDrawer
                 
                 brain.program = newExpression as CalculatorBrain.PropertyList
                 if let result = brain.result {
+                    ////////////
+                    //print(brain.result)
                     let y = CGFloat(result) * pointsPerUnit * -1
                     if y.isNormal && !y.isZero {
                         point = CGPoint(x: CGFloat(pixel) / UIScreen.main.scale, y: y + origin.y)

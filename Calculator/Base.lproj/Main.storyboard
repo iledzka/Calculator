@@ -163,7 +163,7 @@
                                                         <rect key="frame" x="166" y="0.0" width="82" height="63.666666666666686"/>
                                                         <color key="backgroundColor" red="0.81827014590000002" green="0.81827014590000002" blue="0.81827014590000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                                        <state key="normal" title="X"/>
+                                                        <state key="normal" title="M"/>
                                                         <connections>
                                                             <action selector="addVariable:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4Na-K3-Hpq"/>
                                                         </connections>
@@ -172,7 +172,7 @@
                                                         <rect key="frame" x="249" y="0.0" width="82" height="63.666666666666686"/>
                                                         <color key="backgroundColor" red="0.81827014590000002" green="0.81827014590000002" blue="0.81827014590000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                                        <state key="normal" title="→X"/>
+                                                        <state key="normal" title="→M"/>
                                                         <connections>
                                                             <action selector="setVariable:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3SK-Zb-w3J"/>
                                                         </connections>
