@@ -85,7 +85,7 @@ struct CalculatorBrain {
     
     var resultIsPending: Bool {
         get {
-            return pendingBinaryOperation != nil
+            return (pendingBinaryOperation != nil || exponentMaker != nil)
         }
     }
     var scientificButtonIsOn = false
@@ -97,7 +97,7 @@ struct CalculatorBrain {
             resultsArray.append((accumulator!, exponentize(str: exponentString!)))
             exponentMaker = nil
             internalProgram.append(operand as AnyObject)
-        } else {
+        } else { //if resultsArray.last?.stringValue.contains("M") == false{
             accumulator = operand
             resultsArray.append((accumulator!, accumulator!.formatted()))
             internalProgram.append(accumulator as AnyObject)
@@ -174,7 +174,6 @@ struct CalculatorBrain {
                     if !resultsArray.isEmpty {
                         resultsArray.removeLast()
                     }
-                    
                     exponentMaker = function(accumulator!)
                     exponentString = baseValueString(displayedValue ?? accumulator!.formatted())
                     internalProgram.append("xʸ" as AnyObject)
@@ -268,7 +267,7 @@ struct CalculatorBrain {
     
     private var accumulator: Double? { didSet { print("acc: " + String(describing: accumulator)) } }
     
-    private var exponentMaker: ((Double) -> Double)? { didSet { print("EXPONENT MARKER changed")}}
+    private var exponentMaker: ((Double) -> Double)? { didSet { print("EXPONENT MARKER changed: " + exponentMaker.debugDescription)}}
     
     private var exponentString: String?
     

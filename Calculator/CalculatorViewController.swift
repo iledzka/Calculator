@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  CalculatorViewController.swift
 //  Calculator
 //
 //  Created by Iza Ledzka on 29/06/2017.
@@ -26,30 +26,43 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
     func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
         return true
     }
-    
+
+    //Displays result of calculation.
     @IBOutlet weak var display: UILabel!
-    
+    //Displays the operations entered so far.
     @IBOutlet weak var descriptionDisplay: UILabel!
+    
+    @IBAction func graphButtonFlash(_ sender: RoundButton) {
+        sender.flash()
+    }
     
     var userIsInTheMiddleOfTyping: Bool = false
     
     var savedProgram: CalculatorBrain.PropertyList?
     
-    @IBAction func standardToScientificButton(_ sender: UIButton) {
+    @IBAction func standardToScientificButton(_ sender: RoundButton) {
+        sender.flash()
         if brain.scientificButtonIsOn == true {
             brain.scientificButtonIsOn = false
             sender.isSelected = false
+            sender.backgroundColor = UIColor.lightGray
         } else {
             brain.scientificButtonIsOn = true
             sender.isSelected = true
+            sender.backgroundColor = UIColor.darkGray
         }
     }
-    @IBAction func touchDigit(_ sender: UIButton) {
-        let digit = sender.currentTitle!
+    @IBAction func touchDigit(_ sender: RoundButton) {
+        sender.flash()
+        
+            
+        
+        let digit = sender.currentTitle
+        let backspaceButton = sender.currentImage?.isEqual(UIImage(named: "backspace"))
         
         let textCurrentlyInDisplay = display.text!
         
-        if digit.contains("⇦") {
+        if backspaceButton != nil {
             if display.text == "0" {
                 if brain.variablesForProgram.isEmpty {
                     brain.removeLastOperation()
@@ -65,15 +78,15 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
                 userIsInTheMiddleOfTyping = false
             }
             
-        } else {
-            display.text = (textCurrentlyInDisplay.contains(".") && digit.contains(".")) ? textCurrentlyInDisplay : textCurrentlyInDisplay + digit.formatted()
+        } else if let unwrappedDigit = digit {
+            display.text = textCurrentlyInDisplay.contains(".") && unwrappedDigit.contains(".") ? textCurrentlyInDisplay : textCurrentlyInDisplay + unwrappedDigit.formatted()
         }
         if !userIsInTheMiddleOfTyping {
-            if !digit.contains("⇦") {
-                if digit.contains(".") {
-                    display.text = "0" + digit
+            if backspaceButton == nil {
+                if (digit?.contains("."))! {
+                    display.text = "0" + digit!
                 }else {
-                    display.text =  digit.formatted()
+                    display.text =  digit?.formatted()
                 }
                 userIsInTheMiddleOfTyping = true
             }
@@ -98,8 +111,9 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
             if brain.resultIsPending || brain.result == nil {
                 return false
             }
+            return true
         }
-        return true
+        return false
     }
     
     
@@ -116,7 +130,8 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
     private var brain = CalculatorBrain()
     
     @IBOutlet weak var exponentButton: UIButton!
-    @IBAction func performOperation(_ sender: UIButton) {
+    @IBAction func performOperation(_ sender: RoundButton) {
+        sender.flash()
         if sender.currentTitle == "xʸ" {
             sender.isSelected = true
         } else {
@@ -139,7 +154,8 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
         
     }
     
-    @IBAction func setVariable(_ sender: UIButton) {
+    @IBAction func setVariable(_ sender: RoundButton) {
+        sender.flash()
         if let variableName = sender.currentTitle {
             let index = variableName.index(after: variableName.startIndex)
             let substring = variableName.substring(from: index)
@@ -148,8 +164,8 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
         }
     }
     
-    @IBAction func addVariable(_ sender: UIButton) {
-        
+    @IBAction func addVariable(_ sender: RoundButton) {
+        sender.flash()
         if let variableName = sender.currentTitle, !userIsInTheMiddleOfTyping {
             brain.setOperandFrom(saved: variableName)
             display.text = variableName
@@ -157,11 +173,13 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
         updateDescriptionLabel()
     }
     
-    @IBAction func save() {
+    @IBAction func save(_ sender: RoundButton) {
+        sender.flash()
         savedProgram = brain.program
     }
     
-    @IBAction func restore() {
+    @IBAction func restore(_ sender: RoundButton) {
+        sender.flash()
         if savedProgram != nil {
             brain.program = savedProgram!
             displayValue = brain.result ?? 0.0
@@ -169,10 +187,23 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
         }
     }
     
-    //GraphDelegate
+    
     func doEvaluate(with expression: AnyObject) {
         brain.program = expression
     }
+    
+    //Save and Restore are used to save the state of program before performorming segue to GraphView
+    private func save() {
+        savedProgram = brain.program
+    }
+    private func restore() {
+        if savedProgram != nil {
+            brain.program = savedProgram!
+            displayValue = brain.result ?? 0.0
+            updateDescriptionLabel()
+        }
+    }
+    
     private func updateDescriptionLabel() {
         if brain.resultIsPending {
             descriptionDisplay.text = (brain.description ?? "0") + "..."

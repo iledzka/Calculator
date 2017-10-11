@@ -12,13 +12,16 @@ import UIKit
 
 struct AxesDrawer
 {
+    
     var color: UIColor
     var contentScaleFactor: CGFloat             // set this from UIView's contentScaleFactor to position axes with maximum accuracy
     var minimumPointsPerHashmark: CGFloat = 40  // public even though init doesn't accommodate setting it (it's rare to want to change it)
+    var lineWidth: CGFloat
 
-    init(color: UIColor = UIColor.blue, contentScaleFactor: CGFloat = 1) {
+    init(color: UIColor = UIColor.lightGray, contentScaleFactor: CGFloat = 1, lineWidth: CGFloat = 2) {
         self.color = color
         self.contentScaleFactor = contentScaleFactor
+        self.lineWidth = lineWidth
     }
     
     // this method is the heart of the AxesDrawer
@@ -37,6 +40,7 @@ struct AxesDrawer
         path.addLine(to: CGPoint(x: rect.maxX, y: origin.y).aligned(usingScaleFactor: contentScaleFactor)!)
         path.move(to: CGPoint(x: origin.x, y: rect.minY).aligned(usingScaleFactor: contentScaleFactor)!)
         path.addLine(to: CGPoint(x: origin.x, y: rect.maxY).aligned(usingScaleFactor: contentScaleFactor)!)
+        path.lineWidth = lineWidth
         path.stroke()
         drawHashmarks(in: rect, origin: origin, pointsPerUnit: abs(pointsPerUnit))
         UIGraphicsGetCurrentContext()?.restoreGState()

@@ -13,15 +13,19 @@ struct GraphDrawer
 {
     var color: UIColor
     var contentScaleFactor: CGFloat
+    var lineWidth: CGFloat
     private var brain = CalculatorBrain()
     
-    init(color: UIColor = UIColor.black, contentScaleFactor: CGFloat = 1) {
+    init(color: UIColor = UIColor.white, contentScaleFactor: CGFloat = 1, lineWidth: CGFloat = 3) {
         self.color = color
         self.contentScaleFactor = contentScaleFactor
+        self.lineWidth = lineWidth
     }
     mutating func drawGraph(in rect: CGRect, for expression: CalculatorBrain.PropertyList, origin: CGPoint, pointsPerUnit: CGFloat) -> UIBezierPath {
         let numberOfPixels = (rect.maxX - rect.minX) * UIScreen.main.scale
         let path = UIBezierPath()
+        color.set()
+        path.lineWidth = lineWidth
         var point: CGPoint?
         
         let xAxis = (rect.maxX - rect.minX) / pointsPerUnit
@@ -46,9 +50,9 @@ struct GraphDrawer
                 }
                 
                 brain.program = newExpression as CalculatorBrain.PropertyList
+                
                 if let result = brain.result {
-                    ////////////
-                    //print(brain.result)
+                    
                     let y = CGFloat(result) * pointsPerUnit * -1
                     if y.isNormal && !y.isZero {
                         point = CGPoint(x: CGFloat(pixel) / UIScreen.main.scale, y: y + origin.y)
