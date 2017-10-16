@@ -261,13 +261,13 @@ struct CalculatorBrain {
     
 // Private API
     
-    private var internalProgram = [AnyObject]() { didSet { print("internalProgram: " + internalProgram.description) }}
+    private var internalProgram = [AnyObject]() //{ didSet { print("internalProgram: " + internalProgram.description) }}
     
     private var calculationsStack = StackMachine<Double>()
     
-    private var accumulator: Double? { didSet { print("acc: " + String(describing: accumulator)) } }
+    private var accumulator: Double? //{ didSet { print("acc: " + String(describing: accumulator)) } }
     
-    private var exponentMaker: ((Double) -> Double)? { didSet { print("EXPONENT MARKER changed: " + exponentMaker.debugDescription)}}
+    private var exponentMaker: ((Double) -> Double)? //{ didSet { print("EXPONENT MARKER changed: " + exponentMaker.debugDescription)}}
     
     private var exponentString: String?
     
@@ -287,11 +287,6 @@ struct CalculatorBrain {
                     description?.append(lastElement.stringValue.formatted())
                 }
             }
-        }
-        didSet {
-            print("RESULTS ARRAY: ")
-            print(oldValue)
-            print("END OF RESULTS ARRAY.")
         }
     }
     

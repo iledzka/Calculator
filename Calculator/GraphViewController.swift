@@ -23,7 +23,7 @@ class GraphViewController: UIViewController {
 
         }
     }
-    
+    private var brain = CalculatorBrain()
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()

@@ -235,7 +235,6 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
             switch button.currentTitle {
             case .none(_):
                 if (button.currentImage?.isEqual(UIImage(named:"backspace")))!{
-                    print("HOHOHOHOHOHOHHOHOHOHOHOHHHOHOHOH")
                     button.setTitle("sin", for: .normal)
                     button.setImage(nil, for: .normal)
                     button.removeTarget(self, action: #selector(touchDigit(_:)), for: .touchUpInside)
