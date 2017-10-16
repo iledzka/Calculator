@@ -21,7 +21,6 @@
 		2BDDFA971F488EE3006B74A5 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BDDFA931F488EE3006B74A5 /* GraphView.swift */; };
 		2BDDFA981F488EE3006B74A5 /* GraphDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BDDFA941F488EE3006B74A5 /* GraphDrawer.swift */; };
 		2BDDFA991F488EE3006B74A5 /* AxesDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BDDFA951F488EE3006B74A5 /* AxesDrawer.swift */; };
-		2BFB95CC1F8E1FF500246B26 /* OrientationStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFB95CB1F8E1FF500246B26 /* OrientationStackView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,7 +40,6 @@
 		2BDDFA931F488EE3006B74A5 /* GraphView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
 		2BDDFA941F488EE3006B74A5 /* GraphDrawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphDrawer.swift; sourceTree = "<group>"; };
 		2BDDFA951F488EE3006B74A5 /* AxesDrawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AxesDrawer.swift; sourceTree = "<group>"; };
-		2BFB95CB1F8E1FF500246B26 /* OrientationStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationStackView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +58,6 @@
 			children = (
 				2B7B81BF1F05726600D83835 /* CalculatorViewController.swift */,
 				2BDDFA921F488EE3006B74A5 /* GraphViewController.swift */,
-				2BFB95CB1F8E1FF500246B26 /* OrientationStackView.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -209,7 +206,6 @@
 				2B7AEDA31F82A0AB00484321 /* RoundButton.swift in Sources */,
 				2BDDFA961F488EE3006B74A5 /* GraphViewController.swift in Sources */,
 				2B7B81BE1F05726600D83835 /* AppDelegate.swift in Sources */,
-				2BFB95CC1F8E1FF500246B26 /* OrientationStackView.swift in Sources */,
 				2B57D9901F3A066F00809EAA /* StackMachine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

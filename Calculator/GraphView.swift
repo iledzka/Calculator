@@ -88,7 +88,6 @@ class GraphView: UIView, UIGestureRecognizerDelegate {
     }
     
     override func draw(_ rect: CGRect) {
-        print("DRAWING OIN GRAPHVIEW!!!DRAWING OIN GRAPHVIEW!!!DRAWING OIN GRAPHVIEW!!!DRAWING OIN GRAPHVIEW!!!DRAWING OIN GRAPHVIEW!!!")
         createAxes(in: rect)
         if mathOperation != nil {
             graph.drawGraph(in: rect, for: mathOperation!, origin: centerOfAxes, pointsPerUnit: pointsPerUnit).stroke()

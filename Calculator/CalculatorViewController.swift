@@ -13,6 +13,9 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.isNavigationBarHidden = true
+        if UIDevice.current.orientation.isLandscape {
+            swapButtonsForOrientation()
+        }
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -26,7 +29,19 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
     func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
         return true
     }
-
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+       swapButtonsForOrientation()
+    }
+    
+    
+    @IBOutlet var functionButtons: [RoundButton]!
+   
+    @IBOutlet var operationButtons: [RoundButton]!
+    
+    @IBOutlet var digitButtons: [RoundButton]!
+    
+    
+   
     //Displays result of calculation.
     @IBOutlet weak var display: UILabel!
     //Displays the operations entered so far.
@@ -214,6 +229,81 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
         }
     }
     
+    //Some of the buttons need to be rearanged according to the phone orientation.
+    private func swapButtonsForOrientation(){
+        for button in functionButtons {
+            switch button.currentTitle {
+            case .none(_):
+                if (button.currentImage?.isEqual(UIImage(named:"backspace")))!{
+                    print("HOHOHOHOHOHOHHOHOHOHOHOHHHOHOHOH")
+                    button.setTitle("sin", for: .normal)
+                    button.setImage(nil, for: .normal)
+                    button.removeTarget(self, action: #selector(touchDigit(_:)), for: .touchUpInside)
+                    button.addTarget(self, action: #selector(performOperation(_:)), for: .touchUpInside)
+                }
+            case .some(let title):
+                if title == "cos" {
+                    button.setTitle("C", for: .normal)
+                }
+                if title == "sin" {
+                    button.setTitle(nil, for: .normal)
+                    button.setImage(UIImage(named:"backspace"), for: .normal)
+                    button.removeTarget(self, action: #selector(performOperation(_:)), for: .touchUpInside)
+                    button.addTarget(self, action: #selector(touchDigit(_:)), for: .touchUpInside)
+                }
+                if title == "C" {
+                    button.setTitle("cos", for: .normal)
+                }
+            }
+        }
+        for button in operationButtons {
+            switch button.currentTitle {
+            case .none:
+                break
+            case .some(let title):
+                switch title {
+                case "×" :
+                    button.setTitle(".", for: .normal)
+                case "÷" :
+                    button.setTitle("0", for: .normal)
+                case "−" :
+                    button.setTitle("=", for: .normal)
+                case "." :
+                    button.setTitle("×", for: .normal)
+                case "0" :
+                    button.setTitle("÷", for: .normal)
+                case "=" :
+                    button.setTitle("−", for: .normal)
+                default:
+                    break
+                }
+            }
+        }
+        for button in digitButtons {
+            switch button.currentTitle {
+            case .none: break
+            case .some(let title):
+                if title == "1"{
+                    button.setTitle("9", for: .normal)
+                }
+                if title == "2"{
+                    button.setTitle("6", for: .normal)
+                }
+                if title == "9"{
+                    button.setTitle("1", for: .normal)
+                }
+                if title == "4"{
+                    button.setTitle("8", for: .normal)
+                }
+                if title == "8"{
+                    button.setTitle("4", for: .normal)
+                }
+                if title == "6"{
+                    button.setTitle("2", for: .normal)
+                }
+            }
+        }
+    }
     
 }
 
@@ -229,6 +319,7 @@ extension Double {
     
 }
 
+//Numbers in description label need to show either integer value or floating point number no longer that 6 digits after colon.
 extension String {
     func formatted() -> String {
         if (Double(self) != nil) {
