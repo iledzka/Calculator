@@ -8,6 +8,7 @@
 
 import UIKit
 
+
 class CalculatorViewController: UIViewController, UISplitViewControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
@@ -21,13 +22,19 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
         super.viewWillDisappear(animated)
         self.navigationController?.isNavigationBarHidden = false
     }
-    weak var delegate: UISplitViewControllerDelegate?
-    override func viewDidLoad() {
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
         splitViewController?.delegate = self
     }
     
     func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
-        return true
+        if primaryViewController.contents == self {
+            if let gvc = secondaryViewController.contents as? GraphViewController, gvc.mathOperation == nil {
+                return true
+            }
+        }
+        return false
     }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
        swapButtonsForOrientation()
@@ -117,6 +124,7 @@ class CalculatorViewController: UIViewController, UISplitViewControllerDelegate 
         }
         if segue.identifier == "Show Graph", let graphViewController = destinationViewController as? GraphViewController {
             graphViewController.mathOperation = brain.program
+            graphViewController.title = descriptionDisplay.text?.dropLast()
             
         }
     }
@@ -316,6 +324,16 @@ extension Double {
     }
     
     
+}
+
+extension UIViewController {
+    var contents: UIViewController {
+        if let navcon = self as? UINavigationController {
+            return navcon.visibleViewController ?? self
+        } else {
+            return self
+        }
+    }
 }
 
 //Numbers in description label need to show either integer value or floating point number no longer that 6 digits after colon.
